@@ -12,13 +12,13 @@ import javax.swing.table.*;
  *
  * @author Mrz
  */
-public class kendaraan extends javax.swing.JFrame {
+public class penyewa extends javax.swing.JFrame {
     public Connection conn;
     public Statement cn;
     /**
-     * Creates new form kendaraan
+     * Creates new form penyewa
      */
-    public kendaraan() {
+    public penyewa() {
         initComponents();
         tampilData();
     }
@@ -35,34 +35,25 @@ public class kendaraan extends javax.swing.JFrame {
         }
     }
     
-    public void tampilData(){
+        public void tampilData(){
         DefaultTableModel tabelnyo = new DefaultTableModel();
-        tabelnyo.addColumn("ID Kendaraan");
-        tabelnyo.addColumn("Status Tersedia");        
-        tabelnyo.addColumn("Jenis Kendaraan");
-        tabelnyo.addColumn("Merek Kendaraan");
-        tabelnyo.addColumn("Model");
-        tabelnyo.addColumn("Tahun");
-        tabelnyo.addColumn("Nomor Polisi");
-        tabelnyo.addColumn("Warna");
-        tabelnyo.addColumn("Harga per hari");
+        tabelnyo.addColumn("ID Penyewa");
+        tabelnyo.addColumn("Nama");
+        tabelnyo.addColumn("Alamat");
+        tabelnyo.addColumn("Nomor Telepon");
 
         try{
             String idJenis = String.valueOf(penyewaan.jComboBox1.getSelectedItem());
             dbConn();
-            String sql = "select tbl_kendaraan.id_kendaraan, tbl_kendaraan.status_tersedia, tbl_jenis.jenis, tbl_merek.merek, tbl_kendaraan.model, tbl_kendaraan.tahun_pembuatan, tbl_kendaraan.nomor_polisi, tbl_kendaraan.warna, tbl_kendaraan.harga_sewa_per_hari from tbl_kendaraan join tbl_jenis on tbl_jenis.id_jenis = tbl_kendaraan.id_jenis join tbl_merek on tbl_merek.id_merek = tbl_kendaraan.id_merek where tbl_jenis.jenis='" + idJenis + "'";
+            String sql = "select * from tbl_penyewa";
+
             ResultSet rs = cn.executeQuery(sql);
             while(rs.next()){
                 tabelnyo.addRow(new Object[]{
-                rs.getString(1),
-                "1".equals(rs.getString(2)) ? "TERSEDIA" : "TIDAK TERSEDIA",
-                rs.getString(3),
-                rs.getString(4),
-                rs.getString(5),
-                rs.getString(6),
-                rs.getString(7),
-                rs.getString(8),    
-                rs.getString(9),
+                    rs.getString(1),
+                    rs.getString(2),
+                    rs.getString(3),
+                    rs.getString(4),
                 });
             }
             jTable1.setModel(tabelnyo);
@@ -70,7 +61,7 @@ public class kendaraan extends javax.swing.JFrame {
             JOptionPane.showMessageDialog(null, "Ada Kesalahan" + e.getMessage());
         }
     }
-
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -82,8 +73,8 @@ public class kendaraan extends javax.swing.JFrame {
 
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
-        jLabel1 = new javax.swing.JLabel();
         jTextField1 = new javax.swing.JTextField();
+        jLabel1 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
@@ -105,14 +96,14 @@ public class kendaraan extends javax.swing.JFrame {
         });
         jScrollPane1.setViewportView(jTable1);
 
-        jLabel1.setText("Cari Model Kendaraan");
-
         jTextField1.setToolTipText("Cari berdasarkan Nomor Polisi / Merek / Model");
         jTextField1.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent evt) {
                 jTextField1KeyReleased(evt);
             }
         });
+
+        jLabel1.setText("Cari Nama Penyewa");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -121,7 +112,7 @@ public class kendaraan extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 757, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 572, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addGap(18, 18, 18)
@@ -147,50 +138,30 @@ public class kendaraan extends javax.swing.JFrame {
     private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
         int row;
         row=jTable1.getSelectedRow();
-        
-        penyewaan.txtIdKendaraan.setText(jTable1.getValueAt(row, 0).toString());
-        penyewaan.txtMerek.setText(jTable1.getValueAt(row, 3).toString());
-        penyewaan.txtModel.setText(jTable1.getValueAt(row, 4).toString());
-        penyewaan.txtTahun.setText(jTable1.getValueAt(row, 5).toString());
-        penyewaan.txtNopol.setText(jTable1.getValueAt(row, 6).toString());
-        penyewaan.txtWarna.setText(jTable1.getValueAt(row, 7).toString());
-        penyewaan.txtHarga.setText(jTable1.getValueAt(row, 8).toString());
+        penyewaan.txtIdPenyewa.setText(jTable1.getValueAt(row, 0).toString());
+        penyewaan.txtNama.setText(jTable1.getValueAt(row, 1).toString());
         this.dispose();
     }//GEN-LAST:event_jTable1MouseClicked
 
     private void jTextField1KeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jTextField1KeyReleased
         DefaultTableModel tabelnyo = new DefaultTableModel();
-        tabelnyo.addColumn("ID Kendaraan");
-        tabelnyo.addColumn("Status Tersedia");        
-        tabelnyo.addColumn("Jenis Kendaraan");
-        tabelnyo.addColumn("Merek Kendaraan");
-        tabelnyo.addColumn("Model");
-        tabelnyo.addColumn("Tahun");
-        tabelnyo.addColumn("Nomor Polisi");
-        tabelnyo.addColumn("Warna");
-        tabelnyo.addColumn("Harga per hari");
+        tabelnyo.addColumn("ID Penyewa");
+        tabelnyo.addColumn("Nama");
+        tabelnyo.addColumn("Alamat");
+        tabelnyo.addColumn("Nomor Telepon");
 
         try{
             String idJenis = String.valueOf(penyewaan.jComboBox1.getSelectedItem());
             dbConn();
-            String sql = "SELECT tbl_kendaraan.id_kendaraan, tbl_kendaraan.status_tersedia, tbl_jenis.jenis, tbl_merek.merek, tbl_kendaraan.model, tbl_kendaraan.tahun_pembuatan, tbl_kendaraan.nomor_polisi, tbl_kendaraan.warna, tbl_kendaraan.harga_sewa_per_hari " +
-             "FROM tbl_kendaraan " +
-             "JOIN tbl_jenis ON tbl_jenis.id_jenis = tbl_kendaraan.id_jenis " +
-             "JOIN tbl_merek ON tbl_merek.id_merek = tbl_kendaraan.id_merek " +
-             "WHERE tbl_jenis.jenis='" + idJenis + "' AND tbl_kendaraan.model LIKE '%" + jTextField1.getText() + "%'";
+            String sql = "select * from tbl_penyewa where nama LIKE '%" + jTextField1.getText() + "%'";
 
             ResultSet rs = cn.executeQuery(sql);
             while(rs.next()){
                 tabelnyo.addRow(new Object[]{
-                rs.getString(1),
-                "1".equals(rs.getString(2)) ? "TERSEDIA" : "TIDAK TERSEDIA",
-                rs.getString(3),
-                rs.getString(4),
-                rs.getString(5),
-                rs.getString(6),
-                rs.getString(7),
-                rs.getString(8),    
-                rs.getString(9),
+                    rs.getString(1),
+                    rs.getString(2),
+                    rs.getString(3),
+                    rs.getString(4),
                 });
             }
             jTable1.setModel(tabelnyo);
@@ -216,20 +187,20 @@ public class kendaraan extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(kendaraan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(penyewa.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(kendaraan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(penyewa.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(kendaraan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(penyewa.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(kendaraan.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(penyewa.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
-                new kendaraan().setVisible(true);
+                new penyewa().setVisible(true);
             }
         });
     }

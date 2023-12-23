@@ -26,10 +26,10 @@
           <Group type="102" attributes="0">
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="jScrollPane1" alignment="0" pref="757" max="32767" attributes="0"/>
-                  <Group type="102" alignment="0" attributes="0">
+                  <Component id="jScrollPane1" pref="757" max="32767" attributes="0"/>
+                  <Group type="102" attributes="0">
                       <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace type="unrelated" max="-2" attributes="0"/>
+                      <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="jTextField1" max="32767" attributes="0"/>
                   </Group>
               </Group>
@@ -71,18 +71,24 @@
               </Table>
             </Property>
           </Properties>
+          <Events>
+            <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="jTable1MouseClicked"/>
+          </Events>
         </Component>
       </SubComponents>
     </Container>
     <Component class="javax.swing.JLabel" name="jLabel1">
       <Properties>
-        <Property name="text" type="java.lang.String" value="Cari Kendaraan"/>
+        <Property name="text" type="java.lang.String" value="Cari Model Kendaraan"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JTextField" name="jTextField1">
       <Properties>
         <Property name="toolTipText" type="java.lang.String" value="Cari berdasarkan Nomor Polisi / Merek / Model"/>
       </Properties>
+      <Events>
+        <EventHandler event="keyReleased" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="jTextField1KeyReleased"/>
+      </Events>
     </Component>
   </SubComponents>
 </Form>

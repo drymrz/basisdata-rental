@@ -8,11 +8,14 @@ import java.sql.ResultSet;
 import java.sql.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import java.awt.event.KeyEvent;
 import java.util.Date;
 import java.text.SimpleDateFormat;
 import javax.swing.*;
 import javax.swing.table.*;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -29,6 +32,33 @@ public class penyewaan extends javax.swing.JFrame {
     public penyewaan() {
         initComponents();
         tampilData();
+        txtIdPenyewa.setVisible(false);
+        txtIdKendaraan.setVisible(false);
+        txtHarga.getDocument().addDocumentListener(new DocumentListener() {
+            
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                Date startDate = jDateChooser1.getDate();
+                Date endDate = jDateChooser2.getDate();
+                if (endDate != null && startDate != null) {
+                    double harga = Double.parseDouble(txtHarga.getText());
+                    double hari = Double.parseDouble(txtHari.getText());
+                    txtTotal.setText(String.valueOf(harga * hari));
+                }
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                if (!txtTotal.getText().trim().isEmpty()){
+                    txtTotal.setText("");
+                }
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                // Plain text components do not fire these events
+            }
+        });
     }
     
     public void dbConn(){
@@ -84,7 +114,7 @@ public class penyewaan extends javax.swing.JFrame {
             ResultSet rs = cn.executeQuery(sql);
             
             while (rs.next()) {
-                String item = rs.getString("id_jenis");
+                String item = rs.getString("jenis");
                 jComboBox1.addItem(item);
             }
         }catch (Exception e){
@@ -102,42 +132,44 @@ public class penyewaan extends javax.swing.JFrame {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
+        txtIdSewa = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jTextField3 = new javax.swing.JTextField();
+        txtNama = new javax.swing.JTextField();
         jLabel4 = new javax.swing.JLabel();
         jSeparator1 = new javax.swing.JSeparator();
         jComboBox1 = new javax.swing.JComboBox<>();
         jLabel5 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         jLabel6 = new javax.swing.JLabel();
-        jTextField4 = new javax.swing.JTextField();
+        txtMerek = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
-        jTextField5 = new javax.swing.JTextField();
+        txtModel = new javax.swing.JTextField();
         jLabel8 = new javax.swing.JLabel();
-        jTextField6 = new javax.swing.JTextField();
+        txtNopol = new javax.swing.JTextField();
         jLabel9 = new javax.swing.JLabel();
-        jTextField7 = new javax.swing.JTextField();
-        jTextField8 = new javax.swing.JTextField();
+        txtWarna = new javax.swing.JTextField();
+        txtTahun = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jLabel10 = new javax.swing.JLabel();
         jLabel11 = new javax.swing.JLabel();
-        jTextField9 = new javax.swing.JTextField();
+        txtHarga = new javax.swing.JTextField();
         jSeparator2 = new javax.swing.JSeparator();
         jLabel12 = new javax.swing.JLabel();
         jDateChooser1 = new com.toedter.calendar.JDateChooser();
         jLabel13 = new javax.swing.JLabel();
         jDateChooser2 = new com.toedter.calendar.JDateChooser();
         jLabel14 = new javax.swing.JLabel();
-        jTextField10 = new javax.swing.JTextField();
+        txtHari = new javax.swing.JTextField();
         jLabel15 = new javax.swing.JLabel();
-        jTextField11 = new javax.swing.JTextField();
+        txtTotal = new javax.swing.JTextField();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
+        txtIdPenyewa = new javax.swing.JTextField();
+        txtIdKendaraan = new javax.swing.JTextField();
         jMenuBar1 = new javax.swing.JMenuBar();
         jMenu1 = new javax.swing.JMenu();
         jMenu2 = new javax.swing.JMenu();
@@ -147,6 +179,7 @@ public class penyewaan extends javax.swing.JFrame {
         jMenuItem2 = new javax.swing.JMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
 
         jLabel1.setText("ID Penyewaan");
 
@@ -154,11 +187,22 @@ public class penyewaan extends javax.swing.JFrame {
 
         jLabel3.setText("Nama Penyewa");
 
-        jTextField3.setEnabled(false);
+        txtNama.setEditable(false);
+        txtNama.setBackground(new java.awt.Color(255, 255, 255));
 
         jLabel4.setText("Jenis Kendaraan");
 
         jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        jComboBox1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jComboBox1ActionPerformed(evt);
+            }
+        });
+        jComboBox1.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                jComboBox1PropertyChange(evt);
+            }
+        });
 
         jLabel5.setText("Pilih Kendaraan");
 
@@ -171,21 +215,26 @@ public class penyewaan extends javax.swing.JFrame {
 
         jLabel6.setText("Merek");
 
-        jTextField4.setEnabled(false);
+        txtMerek.setEditable(false);
+        txtMerek.setBackground(new java.awt.Color(255, 255, 255));
 
         jLabel7.setText("Model");
 
-        jTextField5.setEnabled(false);
+        txtModel.setEditable(false);
+        txtModel.setBackground(new java.awt.Color(255, 255, 255));
 
         jLabel8.setText("Nomor Polisi");
 
-        jTextField6.setEnabled(false);
+        txtNopol.setEditable(false);
+        txtNopol.setBackground(new java.awt.Color(255, 255, 255));
 
         jLabel9.setText("Warna");
 
-        jTextField7.setEnabled(false);
+        txtWarna.setEditable(false);
+        txtWarna.setBackground(new java.awt.Color(255, 255, 255));
 
-        jTextField8.setEnabled(false);
+        txtTahun.setEditable(false);
+        txtTahun.setBackground(new java.awt.Color(255, 255, 255));
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -198,6 +247,11 @@ public class penyewaan extends javax.swing.JFrame {
                 "Title 1", "Title 2", "Title 3", "Title 4"
             }
         ));
+        jTable1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jTable1MouseClicked(evt);
+            }
+        });
         jScrollPane1.setViewportView(jTable1);
 
         jLabel10.setFont(new java.awt.Font("Tahoma", 1, 11)); // NOI18N
@@ -205,27 +259,66 @@ public class penyewaan extends javax.swing.JFrame {
 
         jLabel11.setText("Harga Sewa/Hari");
 
-        jTextField9.setEnabled(false);
+        txtHarga.setEditable(false);
+        txtHarga.setBackground(new java.awt.Color(255, 255, 255));
+        txtHarga.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                txtHargaPropertyChange(evt);
+            }
+        });
 
         jLabel12.setText("Tanggal Sewa");
 
+        jDateChooser1.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                jDateChooser1PropertyChange(evt);
+            }
+        });
+
         jLabel13.setText("Tanggal Selesai");
+
+        jDateChooser2.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                jDateChooser2PropertyChange(evt);
+            }
+        });
 
         jLabel14.setText("Jumlah Hari");
 
-        jTextField10.setEnabled(false);
+        txtHari.setEditable(false);
+        txtHari.setBackground(new java.awt.Color(255, 255, 255));
+        txtHari.addComponentListener(new java.awt.event.ComponentAdapter() {
+            public void componentShown(java.awt.event.ComponentEvent evt) {
+                txtHariComponentShown(evt);
+            }
+        });
+        txtHari.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                txtHariPropertyChange(evt);
+            }
+        });
 
         jLabel15.setText("Total Biaya");
 
-        jTextField11.setEnabled(false);
+        txtTotal.setEditable(false);
 
         jButton2.setText("Simpan");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jButton3.setText("Update");
 
         jButton4.setText("Hapus");
 
         jButton5.setText("..");
+        jButton5.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton5ActionPerformed(evt);
+            }
+        });
 
         jMenu1.setText("Data");
 
@@ -272,9 +365,11 @@ public class penyewaan extends javax.swing.JFrame {
                                     .addComponent(jLabel3))
                                 .addGap(22, 22, 22)
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                    .addComponent(jTextField1)
-                                    .addComponent(jTextField3, javax.swing.GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
-                                    .addComponent(jButton5)))
+                                    .addComponent(txtIdSewa)
+                                    .addComponent(txtNama, javax.swing.GroupLayout.DEFAULT_SIZE, 121, Short.MAX_VALUE)
+                                    .addComponent(jButton5))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(txtIdPenyewa, javax.swing.GroupLayout.PREFERRED_SIZE, 31, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel4)
@@ -288,13 +383,15 @@ public class penyewaan extends javax.swing.JFrame {
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(jButton1)
                                     .addComponent(jComboBox1, 0, 119, Short.MAX_VALUE)
-                                    .addComponent(jTextField4)
-                                    .addComponent(jTextField5)
-                                    .addComponent(jTextField6)
-                                    .addComponent(jTextField7)
-                                    .addComponent(jTextField9))
+                                    .addComponent(txtMerek)
+                                    .addComponent(txtModel)
+                                    .addComponent(txtNopol)
+                                    .addComponent(txtWarna)
+                                    .addComponent(txtHarga))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(txtTahun, javax.swing.GroupLayout.PREFERRED_SIZE, 50, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(txtIdKendaraan, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addComponent(jLabel15)
                             .addGroup(layout.createSequentialGroup()
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -309,8 +406,8 @@ public class penyewaan extends javax.swing.JFrame {
                                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                                     .addComponent(jDateChooser1, javax.swing.GroupLayout.DEFAULT_SIZE, 122, Short.MAX_VALUE)
                                     .addComponent(jDateChooser2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(jTextField11)
-                                    .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                    .addComponent(txtTotal)
+                                    .addComponent(txtHari, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)))
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jButton2)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
@@ -331,7 +428,7 @@ public class penyewaan extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtIdSewa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel10))
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
@@ -342,7 +439,8 @@ public class penyewaan extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel3)
-                            .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(txtNama, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtIdPenyewa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -352,28 +450,29 @@ public class penyewaan extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel5)
-                            .addComponent(jButton1))
+                            .addComponent(jButton1)
+                            .addComponent(txtIdKendaraan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel6)
-                            .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(txtMerek, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel7)
-                            .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(txtModel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtTahun, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel8)
-                            .addComponent(jTextField6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(txtNopol, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel9)
-                            .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(txtWarna, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel11)
-                            .addComponent(jTextField9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(txtHarga, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addComponent(jSeparator2, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -387,11 +486,11 @@ public class penyewaan extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel14)
-                            .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(txtHari, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel15)
-                            .addComponent(jTextField11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(txtTotal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jButton2)
@@ -415,6 +514,108 @@ public class penyewaan extends javax.swing.JFrame {
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         new kendaraan().show();
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
+
+    }//GEN-LAST:event_jTable1MouseClicked
+
+    private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
+        new penyewa().show();
+    }//GEN-LAST:event_jButton5ActionPerformed
+
+    private void jDateChooser2PropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jDateChooser2PropertyChange
+        Date startDate = jDateChooser1.getDate();
+        Date endDate = jDateChooser2.getDate();
+
+        if (endDate != null && startDate != null) {
+            // Calculate the difference in milliseconds
+            long differenceInMilliseconds = endDate.getTime() - startDate.getTime();
+
+            // Convert milliseconds to days
+            long differenceInDays = TimeUnit.MILLISECONDS.toDays(differenceInMilliseconds);
+
+            // Set the result to the JTextField
+            txtHari.setText(String.valueOf(differenceInDays));
+            
+            if (!txtHarga.getText().trim().isEmpty()){
+            double harga = Double.parseDouble(txtHarga.getText());
+            // Calculate the result
+            double result = harga * differenceInDays;
+            
+            txtTotal.setText(String.valueOf(result));
+            }else{
+                System.out.println("harga empty");
+            }
+        }
+    }//GEN-LAST:event_jDateChooser2PropertyChange
+
+    private void jDateChooser1PropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jDateChooser1PropertyChange
+        Date startDate = jDateChooser1.getDate();
+        Date endDate = jDateChooser2.getDate();
+
+        if (endDate != null && startDate != null) {
+            // Calculate the difference in milliseconds
+            long differenceInMilliseconds = endDate.getTime() - startDate.getTime();
+
+            // Convert milliseconds to days
+            long differenceInDays = TimeUnit.MILLISECONDS.toDays(differenceInMilliseconds);
+
+            // Set the result to the JTextField
+            txtHari.setText(String.valueOf(differenceInDays));
+            
+            if (!txtHarga.getText().trim().isEmpty()){
+            double harga = Double.parseDouble(txtHarga.getText());
+            // Calculate the result
+            double result = harga * differenceInDays;
+            
+            txtTotal.setText(String.valueOf(result));
+            }else{
+                System.out.println("harga empty");
+            }
+        }
+    }//GEN-LAST:event_jDateChooser1PropertyChange
+
+    private void txtHariComponentShown(java.awt.event.ComponentEvent evt) {//GEN-FIRST:event_txtHariComponentShown
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtHariComponentShown
+
+    private void jComboBox1PropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_jComboBox1PropertyChange
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jComboBox1PropertyChange
+
+    private void txtHariPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_txtHariPropertyChange
+
+    }//GEN-LAST:event_txtHariPropertyChange
+
+    private void txtHargaPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_txtHargaPropertyChange
+
+    }//GEN-LAST:event_txtHargaPropertyChange
+
+    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
+        txtModel.setText("");
+        txtMerek.setText("");
+        txtTahun.setText("");
+        txtNopol.setText("");
+        txtWarna.setText("");
+        txtHarga.setText("");
+    }//GEN-LAST:event_jComboBox1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        try{
+            SimpleDateFormat dateFormat = new SimpleDateFormat ("yyyy-MM-dd");
+            String startDate = dateFormat.format(jDateChooser1.getDate());
+            String endDate = dateFormat.format(jDateChooser2.getDate());
+            String sql = "insert into tbl_penyewaan values('"+ txtIdSewa.getText() +"', '"+ txtIdKendaraan.getText() +"', '"+ txtIdPenyewa.getText() +"', '"+ startDate +"', '"+ endDate +"', '"+ txtHari.getText() +"', '"+ txtTotal.getText() +"')";
+            cn.executeUpdate(sql);
+            conn.close();
+            tampilData();
+            dbConn();
+            
+        }catch (Exception e){
+            JOptionPane.showMessageDialog(null, "Ada Kesalahan" + e.getMessage());
+        }
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -486,15 +687,17 @@ public class penyewaan extends javax.swing.JFrame {
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JSeparator jSeparator2;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField10;
-    private javax.swing.JTextField jTextField11;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
-    private javax.swing.JTextField jTextField6;
-    private javax.swing.JTextField jTextField7;
-    private javax.swing.JTextField jTextField8;
-    private javax.swing.JTextField jTextField9;
+    public static javax.swing.JTextField txtHarga;
+    private javax.swing.JTextField txtHari;
+    public static javax.swing.JTextField txtIdKendaraan;
+    public static javax.swing.JTextField txtIdPenyewa;
+    private javax.swing.JTextField txtIdSewa;
+    public static javax.swing.JTextField txtMerek;
+    public static javax.swing.JTextField txtModel;
+    public static javax.swing.JTextField txtNama;
+    public static javax.swing.JTextField txtNopol;
+    public static javax.swing.JTextField txtTahun;
+    private javax.swing.JTextField txtTotal;
+    public static javax.swing.JTextField txtWarna;
     // End of variables declaration//GEN-END:variables
 }

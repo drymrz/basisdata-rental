@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.0.4
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Generation Time: Dec 21, 2023 at 06:24 AM
--- Server version: 10.4.28-MariaDB
--- PHP Version: 8.2.4
+-- Host: 127.0.0.1
+-- Generation Time: Dec 25, 2023 at 09:25 AM
+-- Server version: 10.4.17-MariaDB
+-- PHP Version: 7.3.27
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -30,7 +30,7 @@ SET time_zone = "+00:00";
 CREATE TABLE `tbl_jenis` (
   `id_jenis` char(7) NOT NULL,
   `jenis` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `tbl_jenis`
@@ -38,7 +38,8 @@ CREATE TABLE `tbl_jenis` (
 
 INSERT INTO `tbl_jenis` (`id_jenis`, `jenis`) VALUES
 ('jns_1', 'Mobil'),
-('jns_2', 'Motor');
+('jns_2', 'Motor'),
+('jns_3', 'Bus');
 
 -- --------------------------------------------------------
 
@@ -51,19 +52,23 @@ CREATE TABLE `tbl_kendaraan` (
   `id_jenis` char(7) NOT NULL,
   `id_merek` char(7) NOT NULL,
   `model` varchar(50) NOT NULL,
-  `tahun_pembuatan` year(4) NOT NULL,
+  `tahun_pembuatan` char(4) NOT NULL,
   `nomor_polisi` varchar(10) NOT NULL,
   `warna` varchar(50) NOT NULL,
   `status_tersedia` tinyint(4) NOT NULL DEFAULT 1,
   `harga_sewa_per_hari` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `tbl_kendaraan`
 --
 
 INSERT INTO `tbl_kendaraan` (`id_kendaraan`, `id_jenis`, `id_merek`, `model`, `tahun_pembuatan`, `nomor_polisi`, `warna`, `status_tersedia`, `harga_sewa_per_hari`) VALUES
-('k_1', 'jns_1', 'mk_1', 'All New Avanza', '2022', 'BP1001FO', 'Silver', 1, 350000);
+('k_1', 'jns_1', 'mk_1', 'All New Avanza', '2022', 'BP1001FO', 'Silver', 0, 350000),
+('k_2', 'jns_1', 'mk_5', 'RX-8', '2000', 'BP19X', 'Merah', 1, 750000),
+('k_3', 'jns_1', 'mk_5', 'FD2R', '2002', 'BP11', 'Hitam', 1, 3500000),
+('k_4', 'jns_2', 'mk_2', 'BEAT FI', '2021', 'BP3915U', 'Hitam', 1, 60000),
+('k_5', 'jns_3', 'mk_8', 'OH 1626 L', '2020', 'B7611EE', 'Putih', 1, 5000000);
 
 -- --------------------------------------------------------
 
@@ -74,7 +79,7 @@ INSERT INTO `tbl_kendaraan` (`id_kendaraan`, `id_jenis`, `id_merek`, `model`, `t
 CREATE TABLE `tbl_merek` (
   `id_merek` char(7) NOT NULL,
   `merek` varchar(50) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `tbl_merek`
@@ -86,7 +91,9 @@ INSERT INTO `tbl_merek` (`id_merek`, `merek`) VALUES
 ('mk_3', 'Yamaha'),
 ('mk_4', 'Xenia'),
 ('mk_5', 'Mazda'),
-('mk_6', 'Suzuki');
+('mk_6', 'Suzuki'),
+('mk_7', 'Chery'),
+('mk_8', 'Mercedes');
 
 -- --------------------------------------------------------
 
@@ -99,15 +106,19 @@ CREATE TABLE `tbl_penyewa` (
   `nama` varchar(50) NOT NULL,
   `alamat` varchar(75) NOT NULL,
   `nomor_telepon` varchar(15) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `tbl_penyewa`
 --
 
 INSERT INTO `tbl_penyewa` (`id_penyewa`, `nama`, `alamat`, `nomor_telepon`) VALUES
-('p_1', 'Adry', 'Cendana', '0819920019'),
-('p_2', 'Martin', 'Kintamani', '081239910');
+('p_1', 'Adry Mirza', 'Cendana', '0819920019'),
+('p_2', 'Martin', 'Kintamani', '081239910'),
+('p_3', 'Intan', 'Tiban', '081912881'),
+('p_4', 'Dinda', 'Tiban Koperasi', '08129991312'),
+('p_5', 'Eka', 'Bengkong', '0817551618'),
+('p_6', 'Dhonny', 'Sei Ladi', '08951002911');
 
 -- --------------------------------------------------------
 
@@ -123,7 +134,25 @@ CREATE TABLE `tbl_penyewaan` (
   `tanggal_pengembalian` date NOT NULL,
   `jumlah_hari` int(11) NOT NULL,
   `total_biaya` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `tbl_penyewaan`
+--
+
+INSERT INTO `tbl_penyewaan` (`id_penyewaan`, `id_kendaraan`, `id_penyewa`, `tanggal_sewa`, `tanggal_pengembalian`, `jumlah_hari`, `total_biaya`) VALUES
+('sw-1', 'k_1', 'p_1', '2023-12-25', '2023-12-31', 6, 2100000),
+('sw-2', 'k_4', 'p_2', '2023-12-18', '2023-12-24', 6, 360000);
+
+--
+-- Triggers `tbl_penyewaan`
+--
+DELIMITER $$
+CREATE TRIGGER `trigerAvailability` AFTER INSERT ON `tbl_penyewaan` FOR EACH ROW BEGIN
+        UPDATE db_rentalkendaraan.`tbl_kendaraan` SET `status_tersedia` = '0' WHERE `id_kendaraan` = NEW.id_kendaraan;
+    END
+$$
+DELIMITER ;
 
 --
 -- Indexes for dumped tables

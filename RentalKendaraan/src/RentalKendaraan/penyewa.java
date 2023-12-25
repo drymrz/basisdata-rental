@@ -43,7 +43,6 @@ public class penyewa extends javax.swing.JFrame {
         tabelnyo.addColumn("Nomor Telepon");
 
         try{
-            String idJenis = String.valueOf(penyewaan.jComboBox1.getSelectedItem());
             dbConn();
             String sql = "select * from tbl_penyewa";
 

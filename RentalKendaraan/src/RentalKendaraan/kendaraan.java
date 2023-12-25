@@ -50,7 +50,7 @@ public class kendaraan extends javax.swing.JFrame {
         try{
             String idJenis = String.valueOf(penyewaan.jComboBox1.getSelectedItem());
             dbConn();
-            String sql = "select tbl_kendaraan.id_kendaraan, tbl_kendaraan.status_tersedia, tbl_jenis.jenis, tbl_merek.merek, tbl_kendaraan.model, tbl_kendaraan.tahun_pembuatan, tbl_kendaraan.nomor_polisi, tbl_kendaraan.warna, tbl_kendaraan.harga_sewa_per_hari from tbl_kendaraan join tbl_jenis on tbl_jenis.id_jenis = tbl_kendaraan.id_jenis join tbl_merek on tbl_merek.id_merek = tbl_kendaraan.id_merek where tbl_jenis.jenis='" + idJenis + "'";
+            String sql = "select tbl_kendaraan.id_kendaraan, tbl_kendaraan.status_tersedia, tbl_jenis.jenis, tbl_merek.merek, tbl_kendaraan.model, tbl_kendaraan.tahun_pembuatan, tbl_kendaraan.nomor_polisi, tbl_kendaraan.warna, tbl_kendaraan.harga_sewa_per_hari from tbl_kendaraan join tbl_jenis on tbl_jenis.id_jenis = tbl_kendaraan.id_jenis join tbl_merek on tbl_merek.id_merek = tbl_kendaraan.id_merek where tbl_jenis.jenis='" + idJenis + "' ORDER BY tbl_kendaraan.status_tersedia DESC";
             ResultSet rs = cn.executeQuery(sql);
             while(rs.next()){
                 tabelnyo.addRow(new Object[]{
@@ -177,7 +177,8 @@ public class kendaraan extends javax.swing.JFrame {
              "FROM tbl_kendaraan " +
              "JOIN tbl_jenis ON tbl_jenis.id_jenis = tbl_kendaraan.id_jenis " +
              "JOIN tbl_merek ON tbl_merek.id_merek = tbl_kendaraan.id_merek " +
-             "WHERE tbl_jenis.jenis='" + idJenis + "' AND tbl_kendaraan.model LIKE '%" + jTextField1.getText() + "%'";
+             "WHERE tbl_jenis.jenis='" + idJenis + "' AND tbl_kendaraan.model LIKE '%" + jTextField1.getText() + "%'"
+                    + "ORDER BY tbl_kendaraan.status_tersedia DESC";
 
             ResultSet rs = cn.executeQuery(sql);
             while(rs.next()){

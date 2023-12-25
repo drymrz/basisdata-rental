@@ -16,6 +16,7 @@ import java.text.SimpleDateFormat;
 import javax.swing.*;
 import javax.swing.table.*;
 import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
 
 /**
  *
@@ -25,6 +26,9 @@ public class penyewaan extends javax.swing.JFrame {
     public Connection conn;
     public Statement cn;
     String idJenis = "";
+    public ArrayList<String> idPenyewa = new ArrayList<>();
+    public ArrayList<String> idKendaraan = new ArrayList<>();
+    public ArrayList<String> tahunKendaraan = new ArrayList<>();
     
     /**
      * Creates new form penyewaan
@@ -32,6 +36,7 @@ public class penyewaan extends javax.swing.JFrame {
     public penyewaan() {
         initComponents();
         tampilData();
+        validateAvailabilty();
         txtIdPenyewa.setVisible(false);
         txtIdKendaraan.setVisible(false);
         txtHarga.getDocument().addDocumentListener(new DocumentListener() {
@@ -80,26 +85,38 @@ public class penyewaan extends javax.swing.JFrame {
         tabelnyo.addColumn("Merek Kendaraan");
         tabelnyo.addColumn("Model");
         tabelnyo.addColumn("Nomor Polisi");
+        tabelnyo.addColumn("Warna");
         tabelnyo.addColumn("Tanggal Sewa");
         tabelnyo.addColumn("Tanggal Selesai");
+        tabelnyo.addColumn("Jumlah Hari");
         tabelnyo.addColumn("Harga per hari");
         tabelnyo.addColumn("Total Biaya");
 
         try{
             dbConn();
-            String sql = "Select tbl_penyewaan.id_penyewaan, tbl_penyewa.nama, tbl_merek.merek, tbl_kendaraan.model, tbl_kendaraan.nomor_polisi, tbl_penyewaan.tanggal_sewa, tbl_penyewaan.tanggal_pengembalian, tbl_kendaraan.harga_sewa_per_hari, tbl_penyewaan.total_biaya from tbl_penyewaan join tbl_penyewa on tbl_penyewa.id_penyewa = tbl_penyewaan.id_penyewa join tbl_kendaraan on tbl_kendaraan.id_kendaraan = tbl_penyewaan.id_kendaraan join tbl_merek on tbl_merek.id_merek = tbl_kendaraan.id_merek";
+            String sql = "Select tbl_penyewaan.id_penyewaan, tbl_penyewa.id_penyewa, tbl_penyewa.nama, tbl_merek.merek, tbl_kendaraan.id_kendaraan, tbl_kendaraan.model, tbl_kendaraan.tahun_pembuatan,"
+                    + "tbl_kendaraan.nomor_polisi, tbl_kendaraan.warna, tbl_penyewaan.tanggal_sewa, tbl_penyewaan.tanggal_pengembalian, "
+                    + "tbl_penyewaan.jumlah_hari, tbl_kendaraan.harga_sewa_per_hari, tbl_penyewaan.total_biaya from tbl_penyewaan "
+                    + "join tbl_penyewa on tbl_penyewa.id_penyewa = tbl_penyewaan.id_penyewa "
+                    + "join tbl_kendaraan on tbl_kendaraan.id_kendaraan = tbl_penyewaan.id_kendaraan "
+                    + "join tbl_merek on tbl_merek.id_merek = tbl_kendaraan.id_merek";
             ResultSet rs = cn.executeQuery(sql);
             while(rs.next()){
+                idPenyewa.add(rs.getString(2));
+                idKendaraan.add(rs.getString(5));
+                tahunKendaraan.add(rs.getString(6));
                 tabelnyo.addRow(new Object[]{
                 rs.getString(1),
-                rs.getString(2),
                 rs.getString(3),
                 rs.getString(4),
-                rs.getString(5),
                 rs.getString(6),
-                rs.getString(7),
-                rs.getString(8),    
+                rs.getString(8),
                 rs.getString(9),
+                rs.getString(10),
+                rs.getString(11),    
+                rs.getString(12),
+                rs.getString(13),
+                rs.getString(14),
                 });
             }
             jTable1.setModel(tabelnyo);
@@ -120,6 +137,52 @@ public class penyewaan extends javax.swing.JFrame {
         }catch (Exception e){
             JOptionPane.showMessageDialog(null, "Ada Kesalahan" + e.getMessage());
         }
+    }
+    
+    public void validateAvailabilty(){
+        try {
+            dbConn();
+            String sql = "WITH RankedData AS (SELECT id_penyewaan, id_kendaraan, tanggal_pengembalian, ROW_NUMBER() OVER "
+                    + "(PARTITION BY id_kendaraan ORDER BY tanggal_pengembalian DESC) AS rn FROM tbl_penyewaan) "
+                    + "SELECT id_penyewaan, id_kendaraan, tanggal_pengembalian FROM RankedData WHERE rn = 1";
+            ResultSet rs = cn.executeQuery(sql);
+
+            while (rs.next()) {
+                String endDateString = rs.getString("tanggal_pengembalian");
+                Date endDate = java.sql.Date.valueOf(endDateString);
+                Date currentDate = new java.sql.Date(System.currentTimeMillis());
+
+                if (endDate.before(currentDate)) {
+                    try (Statement updateStatement = conn.createStatement()) {
+                        updateStatement.executeUpdate("UPDATE tbl_kendaraan SET status_tersedia = '1' WHERE id_kendaraan = '" + rs.getString(2) + "'");
+                    } catch (Exception e) {
+                        JOptionPane.showMessageDialog(null, "Ada Kesalahan" + e.getMessage());
+                    }   
+                }
+            }
+
+            // Close the ResultSet after the loop
+            rs.close();
+
+            // Close the main connection
+            conn.close();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Ada Kesalahan" + e.getMessage());
+        }
+    }
+    
+    public void clearForm(){
+        txtIdSewa.setText("");
+        txtNama.setText("");
+        txtIdPenyewa.setText("");
+        txtModel.setText("");
+        txtMerek.setText("");
+        txtTahun.setText("");
+        txtNopol.setText("");
+        txtWarna.setText("");
+        txtHarga.setText("");
+        txtHari.setText("");
+        txtTotal.setText("");
     }
 
     /**
@@ -301,6 +364,7 @@ public class penyewaan extends javax.swing.JFrame {
         jLabel15.setText("Total Biaya");
 
         txtTotal.setEditable(false);
+        txtTotal.setBackground(new java.awt.Color(255, 255, 255));
 
         jButton2.setText("Simpan");
         jButton2.addActionListener(new java.awt.event.ActionListener() {
@@ -310,8 +374,18 @@ public class penyewaan extends javax.swing.JFrame {
         });
 
         jButton3.setText("Update");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
 
         jButton4.setText("Hapus");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
 
         jButton5.setText("..");
         jButton5.addActionListener(new java.awt.event.ActionListener() {
@@ -325,6 +399,11 @@ public class penyewaan extends javax.swing.JFrame {
         jMenu2.setText("Kendaraan");
 
         jMenuItem3.setText("Jenis");
+        jMenuItem3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem3ActionPerformed(evt);
+            }
+        });
         jMenu2.add(jMenuItem3);
 
         jMenuItem4.setText("Merek");
@@ -336,11 +415,21 @@ public class penyewaan extends javax.swing.JFrame {
         jMenu2.add(jMenuItem4);
 
         jMenuItem1.setText("Model");
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
         jMenu2.add(jMenuItem1);
 
         jMenu1.add(jMenu2);
 
         jMenuItem2.setText("Penyewa");
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
         jMenu1.add(jMenuItem2);
 
         jMenuBar1.add(jMenu1);
@@ -508,7 +597,7 @@ public class penyewaan extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jMenuItem4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem4ActionPerformed
-        // TODO add your handling code here:
+        new tambahMerek().show();
     }//GEN-LAST:event_jMenuItem4ActionPerformed
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -516,7 +605,26 @@ public class penyewaan extends javax.swing.JFrame {
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jTable1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jTable1MouseClicked
-
+        try{
+            int row;
+            row=jTable1.getSelectedRow();
+            txtIdSewa.setText(jTable1.getValueAt(row, 0).toString());
+            txtNama.setText(jTable1.getValueAt(row, 1).toString());
+            txtIdPenyewa.setText(idPenyewa.get(row));
+            txtIdKendaraan.setText(idKendaraan.get(row));
+            txtMerek.setText(jTable1.getValueAt(row, 2).toString());
+            txtModel.setText(jTable1.getValueAt(row, 3).toString());
+            txtTahun.setText(tahunKendaraan.get(row));
+            txtNopol.setText(jTable1.getValueAt(row, 4).toString());
+            txtWarna.setText(jTable1.getValueAt(row, 5).toString());
+            txtHari.setText(jTable1.getValueAt(row, 8).toString());
+            jDateChooser1.setDate(new SimpleDateFormat("yyyy-MM-dd").parse(jTable1.getValueAt(row, 6).toString()));
+            jDateChooser2.setDate(new SimpleDateFormat("yyyy-MM-dd").parse(jTable1.getValueAt(row, 7).toString()));
+            txtHarga.setText(jTable1.getValueAt(row, 9).toString());
+            txtTotal.setText(jTable1.getValueAt(row, 10).toString());
+        }catch(Exception e){
+            
+        }
     }//GEN-LAST:event_jTable1MouseClicked
 
     private void jButton5ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton5ActionPerformed
@@ -606,16 +714,68 @@ public class penyewaan extends javax.swing.JFrame {
             SimpleDateFormat dateFormat = new SimpleDateFormat ("yyyy-MM-dd");
             String startDate = dateFormat.format(jDateChooser1.getDate());
             String endDate = dateFormat.format(jDateChooser2.getDate());
+            
+            dbConn();
             String sql = "insert into tbl_penyewaan values('"+ txtIdSewa.getText() +"', '"+ txtIdKendaraan.getText() +"', '"+ txtIdPenyewa.getText() +"', '"+ startDate +"', '"+ endDate +"', '"+ txtHari.getText() +"', '"+ txtTotal.getText() +"')";
             cn.executeUpdate(sql);
             conn.close();
             tampilData();
-            dbConn();
-            
+            clearForm();
         }catch (Exception e){
             JOptionPane.showMessageDialog(null, "Ada Kesalahan" + e.getMessage());
         }
     }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+        new tambahKendaraan().show();
+    }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+        new tambahPenyewa().show();
+    }//GEN-LAST:event_jMenuItem2ActionPerformed
+
+    private void jMenuItem3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem3ActionPerformed
+        new tambahJenis().show();
+    }//GEN-LAST:event_jMenuItem3ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        try {
+            getToolkit().beep();
+            int keluar = JOptionPane.showConfirmDialog(this, "Anda Yakin Ingin Meghapus Ini..?","PERINGATAN",JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE);
+            if(keluar==JOptionPane.YES_OPTION){
+                try {
+                    dbConn();
+                    String sql = "delete from tbl_penyewaan where id_penyewaan='"+ txtIdSewa.getText() +"'";
+                    cn.executeUpdate(sql);
+                    cn.close();
+                    tampilData();
+                    clearForm();
+                    JOptionPane.showMessageDialog(null,"Data berhasil dihapus");
+                } catch (Exception e) {
+                    JOptionPane.showMessageDialog(null,"Deleting failed..");
+                }
+            }
+        }catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e);
+        }
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        try{
+            SimpleDateFormat dateFormat = new SimpleDateFormat ("yyyy-MM-dd");
+            String startDate = dateFormat.format(jDateChooser1.getDate());
+            String endDate = dateFormat.format(jDateChooser2.getDate());
+            
+            dbConn();
+            String sql = "update tbl_penyewaan set id_kendaraan='"+ txtIdKendaraan.getText() +"', id_penyewa='"+ txtIdPenyewa.getText() +"', tanggal_sewa='"+ startDate +"', tanggal_pengembalian='"+ endDate +"', jumlah_hari='"+ txtHari.getText() +"', total_biaya='"+ txtTotal.getText() +"' where id_penyewaan='" + txtIdSewa.getText() + "'";
+            cn.executeUpdate(sql);
+            conn.close();
+            tampilData();
+            clearForm();
+        }catch (Exception e){
+            JOptionPane.showMessageDialog(null, "Ada Kesalahan" + e.getMessage());
+        }
+    }//GEN-LAST:event_jButton3ActionPerformed
 
     /**
      * @param args the command line arguments

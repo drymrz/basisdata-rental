@@ -16,7 +16,7 @@ public class RentalKendaraan {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        new menu().show();
+        new penyewaan().show();
     }
     
 }
